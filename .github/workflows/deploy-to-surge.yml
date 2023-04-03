@@ -3,7 +3,7 @@ name: Deploy to Surge
 on:
   push:
     branches:
-      - main # or the branch you want to deploy from
+      - master
 
 jobs:
   build_and_deploy:
