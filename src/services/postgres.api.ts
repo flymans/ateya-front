@@ -7,20 +7,18 @@ interface ProductData {
 
 export const saveDataToPostgreSQL = async (data: ProductData) => {
   try {
-    const response = await fetch('http://localhost:3001/api/products', {
-      method: 'POST',
+    const response = await fetch(process.env.REACT_APP_API_URL!, {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify(data),
     });
 
-
-
     const id = await response.text();
-    console.log(id)
+    console.log(id);
     return id;
   } catch (error) {
-    console.error('Error saving data to PostgreSQL', error);
+    console.error("Error saving data to PostgreSQL", error);
   }
 };
