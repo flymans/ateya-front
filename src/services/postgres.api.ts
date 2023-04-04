@@ -7,7 +7,7 @@ interface ProductData {
 
 export const saveDataToPostgreSQL = async (data: ProductData) => {
   try {
-    const response = await fetch(process.env.REACT_APP_API_URL!, {
+    const response = await fetch(`${process.env.REACT_APP_API_URL}products`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
