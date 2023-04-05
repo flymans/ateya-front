@@ -18,6 +18,6 @@ export const saveDataToPostgreSQL = async (data: ProductData) => {
     const id = await response.text();
     return id;
   } catch (error) {
-    console.error('Error saving data to PostgreSQL', error);
+    console.error('Error saving data to PostgreSQL', error); // eslint-disable-line no-console
   }
 };
