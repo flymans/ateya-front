@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { saveDataToPostgreSQL } from '../../services/postgres.api';
+import { saveDataToPostgreSQL } from '../../utils/api';
 import QRCode from 'qrcode';
 import { useParams } from 'react-router-dom';
 import { Form, Field } from 'react-final-form';
-import './styles.css';
+import styles from './ProductForm.module.css';
+import { toast } from 'react-toastify';
+import TextField from '../inputs/TextField';
 
 interface FormValues {
   pavilion: string;
@@ -14,7 +16,7 @@ interface FormValues {
 
 const ProductForm: React.FC = () => {
   const [qrCode, setQRCode] = useState<string>('');
-  const { id } = useParams<{ id: string }>();
+  const { qrCodeId } = useParams<{ qrCodeId: string }>();
   const [initialValues, setInitialValues] = useState<FormValues>({
     pavilion: '',
     equipmentType: '',
@@ -23,53 +25,49 @@ const ProductForm: React.FC = () => {
   });
 
   useEffect(() => {
+    if (!qrCodeId) return;
     const fetchFormData = async () => {
-      if (!id) return;
-      const response = await fetch(`${process.env.REACT_APP_API_URL}products/${id}`);
+      const response = await fetch(`${process.env.REACT_APP_API_URL}products/${qrCodeId}`);
       const data = await response.json();
-      setInitialValues({
-        pavilion: data.pavilion,
-        equipmentType: data.equipmentType,
-        comment: data.comment,
-        responsible: data.responsible,
-      });
+      setInitialValues(data);
     };
     fetchFormData();
-  }, [id]);
+  }, [qrCodeId]);
 
   const handleSubmit = async (formValues: FormValues) => {
-    const id = await saveDataToPostgreSQL(formValues);
+    try {
+      const databaseId = await saveDataToPostgreSQL(formValues);
 
-    const qrLink = `${process.env.REACT_APP_FRONT_URL}${id}`;
-    const qrCode = await QRCode.toDataURL(qrLink);
+      if (!databaseId) return;
 
-    setQRCode(qrCode);
+      const qrLink = `${process.env.REACT_APP_FRONT_URL}${databaseId}`;
+      const qrCode = await QRCode.toDataURL(qrLink);
+
+      setQRCode(qrCode);
+      toast.success('QR успешно сгенерирован', { position: 'bottom-right' });
+    } catch (error) {
+      toast.error('Ошибка сохранения данных', { position: 'bottom-right' });
+    }
   };
 
-  const isFormDisabled = !!id;
+  const isFormDisabled = !!qrCodeId;
 
   return (
-    <div className="container">
+    <div className={styles.container}>
       <Form initialValues={initialValues} onSubmit={handleSubmit}>
         {({ handleSubmit, submitting }) => (
-          <form onSubmit={handleSubmit}>
-            <label>
-              Павильон:
-              <Field<string> name="pavilion" component="input" type="text" disabled={isFormDisabled} />
-            </label>
-            <label>
-              Тип оборудования:
-              <Field<string> name="equipmentType" component="input" type="text" disabled={isFormDisabled} />
-            </label>
-            <label>
-              Комментарий:
-              <Field<string> name="comment" component="textarea" disabled={isFormDisabled} />
-            </label>
-            <label>
-              Ответственный:
-              <Field<string> name="responsible" component="input" type="text" disabled={isFormDisabled} />
-            </label>
-            <button type="submit" disabled={submitting || isFormDisabled}>
+          <form className={styles.form} onSubmit={handleSubmit}>
+            <Field component={TextField} label="Павильон:" name="pavilion" disabled={isFormDisabled} />
+            <Field component={TextField} label="Тип оборудования:" name="equipmentType" disabled={isFormDisabled} />
+            <Field
+              label="Комментарий"
+              name="comment"
+              component={TextField}
+              inputType="textarea"
+              disabled={isFormDisabled}
+            />
+            <Field component={TextField} label="Ответственный:" name="responsible" disabled={isFormDisabled} />
+            <button className={styles.submitBtn} type="submit" disabled={submitting || isFormDisabled}>
               Сохранить
             </button>
           </form>
@@ -77,9 +75,9 @@ const ProductForm: React.FC = () => {
       </Form>
 
       {qrCode && (
-        <div className="qr">
-          <hr />
-          <img src={qrCode} alt={`QR code: ${id}`} />
+        <div className={styles.qr}>
+          <hr className={styles.hr} />
+          <img src={qrCode} alt={'QR code'} />
         </div>
       )}
     </div>
