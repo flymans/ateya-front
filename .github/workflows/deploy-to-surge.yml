@@ -27,6 +27,9 @@ jobs:
           REACT_APP_API_URL: ${{ secrets.REACT_APP_API_URL }}
           REACT_APP_FRONT_URL: ${{ secrets.REACT_APP_FRONT_URL }}
 
+      - name: Create 200.html
+        run: cp build/index.html build/200.html
+
       - name: Deploy to Surge
         run: npx surge ./build ateya.surge.sh
         env:
