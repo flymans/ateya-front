@@ -11,6 +11,23 @@
             "error",
             "always"
         ],
-        "no-console": "warn"
+        "no-console": "warn",
+        "import/order": [
+            "error",
+            {
+                "groups": [
+                    "builtin",
+                    "external",
+                    "parent",
+                    "sibling",
+                    "index"
+                ],
+                "newlines-between": "always",
+                "alphabetize": {
+                    "order": "asc",
+                    "caseInsensitive": true
+                }
+            }
+        ]
     }
 }
