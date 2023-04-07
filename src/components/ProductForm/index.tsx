@@ -18,6 +18,7 @@ interface FormValues {
 
 const ProductForm: React.FC = () => {
   const [qrCode, setQRCode] = useState<string>('');
+  const [isPavilionDisabled, setIsPavilionDisabled] = useState(true);
   const { qrCodeId } = useParams<{ qrCodeId: string }>();
   const navigate = useNavigate();
   const [initialValues, setInitialValues] = useState<FormValues>({
@@ -27,12 +28,19 @@ const ProductForm: React.FC = () => {
     responsible: '',
   });
 
+  const isQrLoaded = !!qrCodeId;
+
   useEffect(() => {
     if (!qrCodeId) return;
     const fetchFormData = async () => {
       try {
         const data = await getProductData(qrCodeId);
         setInitialValues(data);
+
+        const qrLink = `${process.env.REACT_APP_FRONT_URL}${qrCodeId}`;
+        const qrCode = await QRCode.toDataURL(qrLink);
+
+        setQRCode(qrCode);
       } catch (error) {
         toast.error('QR код не найден');
         navigate('/');
@@ -40,6 +48,10 @@ const ProductForm: React.FC = () => {
     };
     fetchFormData();
   }, [qrCodeId, navigate]);
+
+  useEffect(() => {
+    setIsPavilionDisabled(isQrLoaded);
+  }, [isQrLoaded]);
 
   const handleSubmit = async (formValues: FormValues) => {
     try {
@@ -57,24 +69,33 @@ const ProductForm: React.FC = () => {
     }
   };
 
-  const isFormDisabled = !!qrCodeId;
-
   return (
     <div className={styles.container}>
       <Form initialValues={initialValues} onSubmit={handleSubmit}>
-        {({ handleSubmit, submitting }) => (
+        {({ handleSubmit, submitting, pristine }) => (
           <form className={styles.form} onSubmit={handleSubmit}>
-            <Field component={TextField} label="Павильон:" name="pavilion" disabled={isFormDisabled} />
-            <Field component={TextField} label="Тип оборудования:" name="equipmentType" disabled={isFormDisabled} />
+            <Field
+              component={TextField}
+              label="Павильон:"
+              name="pavilion"
+              edit={{
+                show: isQrLoaded,
+                onClick: () => {
+                  setIsPavilionDisabled(false);
+                },
+              }}
+              disabled={isPavilionDisabled}
+            />
+            <Field component={TextField} label="Тип оборудования:" name="equipmentType" disabled={isQrLoaded} />
             <Field
               label="Комментарий:"
               name="comment"
               component={TextField}
               inputType="textarea"
-              disabled={isFormDisabled}
+              disabled={isQrLoaded}
             />
-            <Field component={TextField} label="Ответственный:" name="responsible" disabled={isFormDisabled} />
-            <button className={styles.submitBtn} type="submit" disabled={submitting || isFormDisabled}>
+            <Field component={TextField} label="Ответственный:" name="responsible" disabled={isQrLoaded} />
+            <button className={styles.submitBtn} type="submit" disabled={submitting || pristine}>
               Сохранить
             </button>
           </form>
