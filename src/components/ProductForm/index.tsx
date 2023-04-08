@@ -1,80 +1,65 @@
-import QRCode from 'qrcode';
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Form, Field } from 'react-final-form';
-import { useParams, useNavigate } from 'react-router-dom';
-import { toast } from 'react-toastify';
+import { useParams } from 'react-router-dom';
 
-import { saveProductData, getProductData } from '../../services/productService';
+import { useFetchFormData, useSubmitData } from '../../hooks/useProductForm';
+import FieldWithPreviousValue from '../inputs/FieldWithPreviousValue';
 import TextField from '../inputs/TextField';
 
 import styles from './ProductForm.module.css';
 
-interface FormValues {
-  pavilion: string;
-  equipmentType: string;
-  comment: string;
-  responsible: string;
-}
-
 const ProductForm: React.FC = () => {
-  const [qrCode, setQRCode] = useState<string>('');
-  const { qrCodeId } = useParams<{ qrCodeId: string }>();
-  const navigate = useNavigate();
-  const [initialValues, setInitialValues] = useState<FormValues>({
-    pavilion: '',
-    equipmentType: '',
-    comment: '',
-    responsible: '',
-  });
+  const { qrCodeId = null } = useParams<{ qrCodeId: string }>();
+  const formData = useFetchFormData(qrCodeId);
+  const { handleSubmit, qrCode } = useSubmitData();
 
-  useEffect(() => {
-    if (!qrCodeId) return;
-    const fetchFormData = async () => {
-      try {
-        const data = await getProductData(qrCodeId);
-        setInitialValues(data);
-      } catch (error) {
-        toast.error('QR код не найден');
-        navigate('/');
-      }
-    };
-    fetchFormData();
-  }, [qrCodeId, navigate]);
-
-  const handleSubmit = async (formValues: FormValues) => {
-    try {
-      const databaseId = await saveProductData(formValues);
-
-      if (!databaseId) return;
-
-      const qrLink = `${process.env.REACT_APP_FRONT_URL}${databaseId}`;
-      const qrCode = await QRCode.toDataURL(qrLink);
-
-      setQRCode(qrCode);
-      toast.success('QR успешно сгенерирован');
-    } catch (error) {
-      toast.error('Ошибка сохранения данных');
-    }
-  };
-
-  const isFormDisabled = !!qrCodeId;
+  const isQrLoaded = !!qrCodeId;
+  const [isPavilionDisabled, setIsPavilionDisabled] = useState(isQrLoaded);
+  const [isResponsibleDisabled, setIsResponsibleDisabled] = useState(isQrLoaded);
 
   return (
     <div className={styles.container}>
-      <Form initialValues={initialValues} onSubmit={handleSubmit}>
-        {({ handleSubmit, submitting }) => (
+      <Form initialValues={formData} onSubmit={handleSubmit}>
+        {({ handleSubmit, submitting, pristine }) => (
           <form className={styles.form} onSubmit={handleSubmit}>
-            <Field component={TextField} label="Павильон:" name="pavilion" disabled={isFormDisabled} />
-            <Field component={TextField} label="Тип оборудования:" name="equipmentType" disabled={isFormDisabled} />
+            <FieldWithPreviousValue
+              component={TextField}
+              label="Павильон:"
+              name="pavilion"
+              edit={{
+                show: isQrLoaded,
+                onClick: () => {
+                  setIsPavilionDisabled(false);
+                },
+              }}
+              disabled={isPavilionDisabled}
+              previousValue={formData?.previousValues?.pavilion}
+            />
+
+            <Field component={TextField} label="Тип оборудования:" name="equipmentType" disabled={isQrLoaded} />
+
             <Field
               label="Комментарий:"
               name="comment"
               component={TextField}
               inputType="textarea"
-              disabled={isFormDisabled}
+              disabled={isQrLoaded}
             />
-            <Field component={TextField} label="Ответственный:" name="responsible" disabled={isFormDisabled} />
-            <button className={styles.submitBtn} type="submit" disabled={submitting || isFormDisabled}>
+
+            <FieldWithPreviousValue
+              component={TextField}
+              label="Ответственный:"
+              name="responsible"
+              edit={{
+                show: isQrLoaded,
+                onClick: () => {
+                  setIsResponsibleDisabled(false);
+                },
+              }}
+              disabled={isResponsibleDisabled}
+              previousValue={formData?.previousValues?.responsible}
+            />
+            <button className={styles.button} type="submit" disabled={submitting || pristine}>
               Сохранить
             </button>
           </form>

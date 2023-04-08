@@ -1,4 +1,4 @@
-.textField {
+.container {
   display: flex;
   flex-direction: column;
   gap: 5px;
@@ -13,8 +13,13 @@
   padding: 5px;
   border: 2px solid #ccc;
   border-radius: 5px;
+  font-family: inherit;
   font-size: 1rem;
+  font-weight: normal;
+  line-height: normal;
   height: 30px;
+  flex-grow: 1;
+  padding-right: 30px;
 }
 
 .input:focus {
@@ -29,5 +34,25 @@
 }
 
 .inputTextarea {
-    height: 60px;
+  height: 60px;
+}
+
+.inputWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.editIcon {
+  position: absolute;
+  right: 10px;
+  width: 14px;
+  height: 14px;
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .editIcon {
+    right: 5px;
+  }
 }

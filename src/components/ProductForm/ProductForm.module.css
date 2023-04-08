@@ -7,7 +7,8 @@
   margin: 0 auto;
 }
 
-.submitBtn {
+/* Button */
+.button {
   background-color: #0077ff;
   color: #fff;
   border: none;
@@ -17,15 +18,16 @@
   cursor: pointer;
 }
 
-.submitBtn:hover {
+.button:hover {
   background-color: #0052cc;
 }
 
-.submitBtn[disabled] {
+.button[disabled] {
   opacity: 0.5;
   cursor: not-allowed;
 }
 
+/* QR Code */
 .hr {
   border: none;
   border-top: 1px solid #ccc;
@@ -39,7 +41,7 @@
   margin-top: 8px;
 }
 
-/* Mobile styles */
+/* Media queries */
 @media (max-width: 768px) {
   .container {
     padding: 10px;
@@ -51,7 +53,7 @@
     max-width: 100%;
   }
 
-  .submitBtn {
+  .button {
     font-size: 1rem;
   }
 }
