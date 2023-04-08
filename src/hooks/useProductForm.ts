@@ -3,17 +3,11 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
-import { saveProductData, getProductData } from '../services/productService';
-
-interface FormValues {
-  pavilion: string;
-  equipmentType: string;
-  comment: string;
-  responsible: string;
-}
+import { ProductData } from '../common/interfaces';
+import { createProductData, getProductData, updateProductData } from '../services/productService';
 
 export function useFetchFormData(qrCodeId: string | null) {
-  const [initialValues, setInitialValues] = useState<FormValues>({
+  const [initialValues, setInitialValues] = useState<ProductData>({
     pavilion: '',
     equipmentType: '',
     comment: '',
@@ -40,9 +34,9 @@ export function useFetchFormData(qrCodeId: string | null) {
 
 export function useSubmitData() {
   const [qrCode, setQRCode] = useState<string>('');
-  const handleSubmit = async (formValues: FormValues) => {
+  const handleSubmit = async ({ id, ...formValues }: ProductData) => {
     try {
-      const databaseId = await saveProductData(formValues);
+      const databaseId = id ? await updateProductData(id, formValues) : await createProductData(formValues);
 
       if (!databaseId) return;
 
