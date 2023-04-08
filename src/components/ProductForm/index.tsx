@@ -1,73 +1,22 @@
-import QRCode from 'qrcode';
 import React, { useState, useEffect } from 'react';
 import { Form, Field } from 'react-final-form';
-import { useParams, useNavigate } from 'react-router-dom';
-import { toast } from 'react-toastify';
+import { useParams } from 'react-router-dom';
 
-import { saveProductData, getProductData } from '../../services/productService';
+import { useFetchFormData, useSubmitData } from '../../hooks/useProductForm';
 import TextField from '../inputs/TextField';
 
 import styles from './ProductForm.module.css';
 
-interface FormValues {
-  pavilion: string;
-  equipmentType: string;
-  comment: string;
-  responsible: string;
-}
-
 const ProductForm: React.FC = () => {
-  const [qrCode, setQRCode] = useState<string>('');
-  const [isPavilionDisabled, setIsPavilionDisabled] = useState(true);
-  const { qrCodeId } = useParams<{ qrCodeId: string }>();
-  const navigate = useNavigate();
-  const [initialValues, setInitialValues] = useState<FormValues>({
-    pavilion: '',
-    equipmentType: '',
-    comment: '',
-    responsible: '',
-  });
-
+  const { qrCodeId = null } = useParams<{ qrCodeId: string }>();
+  const initialValues = useFetchFormData(qrCodeId);
+  const { handleSubmit, qrCode } = useSubmitData();
   const isQrLoaded = !!qrCodeId;
-
-  useEffect(() => {
-    if (!qrCodeId) return;
-    const fetchFormData = async () => {
-      try {
-        const data = await getProductData(qrCodeId);
-        setInitialValues(data);
-
-        const qrLink = `${process.env.REACT_APP_FRONT_URL}${qrCodeId}`;
-        const qrCode = await QRCode.toDataURL(qrLink);
-
-        setQRCode(qrCode);
-      } catch (error) {
-        toast.error('QR код не найден');
-        navigate('/');
-      }
-    };
-    fetchFormData();
-  }, [qrCodeId, navigate]);
+  const [isPavilionDisabled, setIsPavilionDisabled] = useState(isQrLoaded);
 
   useEffect(() => {
     setIsPavilionDisabled(isQrLoaded);
   }, [isQrLoaded]);
-
-  const handleSubmit = async (formValues: FormValues) => {
-    try {
-      const databaseId = await saveProductData(formValues);
-
-      if (!databaseId) return;
-
-      const qrLink = `${process.env.REACT_APP_FRONT_URL}${databaseId}`;
-      const qrCode = await QRCode.toDataURL(qrLink);
-
-      setQRCode(qrCode);
-      toast.success('QR успешно сгенерирован');
-    } catch (error) {
-      toast.error('Ошибка сохранения данных');
-    }
-  };
 
   return (
     <div className={styles.container}>
@@ -95,7 +44,7 @@ const ProductForm: React.FC = () => {
               disabled={isQrLoaded}
             />
             <Field component={TextField} label="Ответственный:" name="responsible" disabled={isQrLoaded} />
-            <button className={styles.submitBtn} type="submit" disabled={submitting || pristine}>
+            <button className={styles.button} type="submit" disabled={submitting || pristine}>
               Сохранить
             </button>
           </form>

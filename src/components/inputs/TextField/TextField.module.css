@@ -13,10 +13,13 @@
   padding: 5px;
   border: 2px solid #ccc;
   border-radius: 5px;
+  font-family: inherit;
   font-size: 1rem;
+  font-weight: normal;
+  line-height: normal;
   height: 30px;
   flex-grow: 1;
-  padding-right: 30px; /* Add some padding to prevent the text from going under the icon */
+  padding-right: 30px;
 }
 
 .input:focus {
@@ -31,7 +34,7 @@
 }
 
 .inputTextarea {
-    height: 60px;
+  height: 60px;
 }
 
 .inputWrapper {
@@ -52,12 +55,4 @@
   .editIcon {
     right: 5px;
   }
-}
-
-.input,
-.inputTextarea {
-  font-family: inherit;
-  font-size: 1rem;
-  font-weight: normal;
-  line-height: normal;
 }
