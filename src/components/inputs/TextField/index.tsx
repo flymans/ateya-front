@@ -25,7 +25,12 @@ const TextField: React.ComponentType<TextFieldProps> = ({
   const inputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const inputClassName = inputType === 'textarea' ? `${styles.input} ${styles.inputTextarea}` : styles.input;
+  const isError = meta.error && meta.touched;
+  const inputErrorClass = isError ? styles.inputError : '';
+  const inputClassName =
+    inputType === 'textarea'
+      ? `${styles.input} ${styles.inputTextarea} ${inputErrorClass}`
+      : `${styles.input} ${inputErrorClass}`;
   const InputElement =
     inputType === 'textarea' ? (
       <textarea ref={textareaRef} className={inputClassName} disabled={disabled} {...input} />
@@ -56,7 +61,7 @@ const TextField: React.ComponentType<TextFieldProps> = ({
         {InputElement}
         {edit?.show && <img src={EditIcon} alt="Edit" className={styles.editIcon} onClick={handleEditClick} />}
       </div>
-      {meta.error && meta.touched && <span className={styles.error}>{meta.error}</span>}
+      {isError && <span className={styles.errorText}>{meta.error}</span>}
     </div>
   );
 };

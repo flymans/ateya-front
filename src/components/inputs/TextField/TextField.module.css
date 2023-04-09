@@ -22,15 +22,24 @@
   padding-right: 30px;
 }
 
+.inputError {
+  border-color: red;
+}
+
 .input:focus {
   outline: none;
   border-color: #0077ff;
 }
 
-.error {
+.inputError:focus {
+  border-color: red;
+  outline: none;
+}
+
+.errorText {
   color: #d32f2f;
   font-size: 0.9rem;
-  margin-top: 5px;
+  font-weight: bold;
 }
 
 .inputTextarea {
