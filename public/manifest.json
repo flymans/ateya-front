@@ -1,6 +1,6 @@
 {
-  "short_name": "ateya",
-  "name": "ateya inventorization",
+  "short_name": "QR Инвентаризация",
+  "name": "Инвентаризация по QR-коду",
   "start_url": ".",
   "display": "standalone",
   "theme_color": "#000000",

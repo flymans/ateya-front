@@ -6,6 +6,7 @@ import { ProductData } from '../../common/interfaces';
 import { useFetchFormData, useSubmitData } from '../../hooks/useProductForm';
 import { dataURLToBlobURL } from '../../utils/dataToBlob';
 import { required } from '../../utils/validations';
+import Header from '../Header';
 import CommentField from '../inputs/CommentField';
 import FieldWithPreviousValue from '../inputs/FieldWithPreviousValue';
 import TextField from '../inputs/TextField';
@@ -28,67 +29,70 @@ const ProductForm: React.FC = () => {
   };
 
   return (
-    <div className={styles.container}>
-      <Form initialValues={initialValues} onSubmit={onSubmit}>
-        {({ handleSubmit, submitting, pristine }) => {
-          return (
-            <form className={styles.form} onSubmit={handleSubmit}>
-              <FieldWithPreviousValue
-                component={TextField}
-                validate={required}
-                label="Павильон:"
-                name="pavilion"
-                edit={{
-                  show: isQrLoaded,
-                  onClick: () => {
-                    setIsPavilionDisabled(false);
-                  },
-                }}
-                disabled={isPavilionDisabled}
-                previousValue={initialValues?.previousValues?.pavilion}
-              />
+    <>
+      {isQrLoaded && <Header />}
+      <div className={styles.container}>
+        <Form initialValues={initialValues} onSubmit={onSubmit}>
+          {({ handleSubmit, submitting, pristine }) => {
+            return (
+              <form className={styles.form} onSubmit={handleSubmit}>
+                <FieldWithPreviousValue
+                  component={TextField}
+                  validate={required}
+                  label="Павильон:"
+                  name="pavilion"
+                  edit={{
+                    show: isQrLoaded,
+                    onClick: () => {
+                      setIsPavilionDisabled(false);
+                    },
+                  }}
+                  disabled={isPavilionDisabled}
+                  previousValue={initialValues?.previousValues?.pavilion}
+                />
 
-              <Field
-                component={TextField}
-                label="Тип оборудования:"
-                name="equipmentType"
-                disabled={isQrLoaded}
-                validate={required}
-              />
+                <Field
+                  component={TextField}
+                  label="Тип оборудования:"
+                  name="equipmentType"
+                  disabled={isQrLoaded}
+                  validate={required}
+                />
 
-              <CommentField isQrLoaded={isQrLoaded} />
+                <CommentField isQrLoaded={isQrLoaded} />
 
-              <FieldWithPreviousValue
-                component={TextField}
-                label="Ответственный:"
-                name="responsible"
-                validate={required}
-                edit={{
-                  show: isQrLoaded,
-                  onClick: () => {
-                    setIsResponsibleDisabled(false);
-                  },
-                }}
-                disabled={isResponsibleDisabled}
-                previousValue={initialValues?.previousValues?.responsible}
-              />
-              <button className={styles.button} type="submit" disabled={submitting || pristine}>
-                Сохранить
-              </button>
-            </form>
-          );
-        }}
-      </Form>
+                <FieldWithPreviousValue
+                  component={TextField}
+                  label="Ответственный:"
+                  name="responsible"
+                  validate={required}
+                  edit={{
+                    show: isQrLoaded,
+                    onClick: () => {
+                      setIsResponsibleDisabled(false);
+                    },
+                  }}
+                  disabled={isResponsibleDisabled}
+                  previousValue={initialValues?.previousValues?.responsible}
+                />
+                <button className={styles.button} type="submit" disabled={submitting || pristine}>
+                  Сохранить
+                </button>
+              </form>
+            );
+          }}
+        </Form>
 
-      {qrCode && (
-        <div className={styles.qr}>
-          <img src={qrCode} alt={'QR code'} />
-          <a href={dataURLToBlobURL(qrCode)} download="qr.png" className={styles.downloadLink}>
-            Скачать QR-код
-          </a>
-        </div>
-      )}
-    </div>
+        {qrCode && (
+          <div className={styles.qr}>
+            <img src={qrCode} alt={'QR code'} />
+            <a href={dataURLToBlobURL(qrCode)} download="qr.png" className={styles.downloadLink}>
+              Скачать QR-код
+            </a>
+          </div>
+        )}
+      </div>
+    </>
   );
 };
 
