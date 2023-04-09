@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
@@ -16,36 +16,38 @@ export const useFetchFormData = (qrCodeId: string | null, setQrCode: (qrCode: st
   });
   const navigate = useNavigate();
 
-  useEffect(() => {
+  const loadData = useCallback(async () => {
     if (!qrCodeId) return;
-    const fetchFormData = async () => {
-      try {
-        const data = await getProductData(qrCodeId);
-        setInitialValues(data);
+    try {
+      const data = await getProductData(qrCodeId);
+      setInitialValues(data);
 
-        const generatedQrCode = await generateQrCode(qrCodeId);
-        setQrCode(generatedQrCode);
-      } catch (error) {
-        toast.error('QR код не найден');
-        navigate('/');
-      }
-    };
-    fetchFormData();
+      const generatedQrCode = await generateQrCode(qrCodeId);
+      setQrCode(generatedQrCode);
+    } catch (error) {
+      toast.error('QR код не найден');
+      navigate('/');
+    }
   }, [qrCodeId, navigate, setQrCode]);
 
-  return { initialValues };
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+
+  return { initialValues, loadData };
 };
 
 export const useSubmitData = (setQrCode: (qrCode: string) => void) => {
   const handleSubmit = async ({ id, ...formValues }: ProductData) => {
     try {
-      const databaseId = id ? await updateProductData(id, formValues) : await createProductData(formValues);
+      const isUpdate = !!id;
+      const databaseId = isUpdate ? await updateProductData(id, formValues) : await createProductData(formValues);
 
       if (!databaseId) return;
 
       const generatedQrCode = await generateQrCode(databaseId);
       setQrCode(generatedQrCode);
-      toast.success('QR успешно сгенерирован');
+      toast.success(isUpdate ? 'Данные успешно обновлены' : 'QR-код сгенерирован');
     } catch (error) {
       toast.error('Ошибка сохранения данных');
     }

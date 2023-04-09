@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Form, Field } from 'react-final-form';
 import { useParams } from 'react-router-dom';
 
+import { ProductData } from '../../common/interfaces';
 import { useFetchFormData, useSubmitData } from '../../hooks/useProductForm';
 import { dataURLToBlobURL } from '../../utils/dataToBlob';
 import FieldWithPreviousValue from '../inputs/FieldWithPreviousValue';
@@ -12,16 +13,21 @@ import styles from './ProductForm.module.css';
 const ProductForm: React.FC = () => {
   const { qrCodeId = null } = useParams<{ qrCodeId: string }>();
   const [qrCode, setQrCode] = useState<string>('');
-  const { initialValues } = useFetchFormData(qrCodeId, setQrCode);
+  const { initialValues, loadData } = useFetchFormData(qrCodeId, setQrCode);
   const { handleSubmit } = useSubmitData(setQrCode);
 
   const isQrLoaded = !!qrCodeId;
   const [isPavilionDisabled, setIsPavilionDisabled] = useState(isQrLoaded);
   const [isResponsibleDisabled, setIsResponsibleDisabled] = useState(isQrLoaded);
 
+  const onSubmit = async (values: ProductData) => {
+    await handleSubmit(values);
+    await loadData();
+  };
+
   return (
     <div className={styles.container}>
-      <Form initialValues={initialValues} onSubmit={handleSubmit}>
+      <Form initialValues={initialValues} onSubmit={onSubmit}>
         {({ handleSubmit, submitting, pristine }) => (
           <form className={styles.form} onSubmit={handleSubmit}>
             <FieldWithPreviousValue
