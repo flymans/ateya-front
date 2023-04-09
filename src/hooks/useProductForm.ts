@@ -17,7 +17,11 @@ export const useFetchFormData = (qrCodeId: string | null, setQrCode: (qrCode: st
   const navigate = useNavigate();
 
   const loadData = useCallback(async () => {
-    if (!qrCodeId) return;
+    if (!qrCodeId) {
+      setInitialValues({ pavilion: '', equipmentType: '', comment: '', responsible: '' });
+      setQrCode('');
+      return;
+    }
     try {
       const data = await getProductData(qrCodeId);
       setInitialValues(data);

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Form, Field } from 'react-final-form';
 import { useParams } from 'react-router-dom';
 
@@ -25,15 +25,26 @@ const ProductForm: React.FC = () => {
 
   const onSubmit = async (values: ProductData) => {
     await handleSubmit(values);
-    await loadData();
+    if (isQrLoaded) await loadData();
   };
+
+  useEffect(() => {
+    if (isQrLoaded) {
+      setIsPavilionDisabled(true);
+      setIsResponsibleDisabled(true);
+    } else {
+      setIsPavilionDisabled(false);
+      setIsResponsibleDisabled(false);
+    }
+  }, [isQrLoaded]);
 
   return (
     <>
       {isQrLoaded && <Header />}
       <div className={styles.container}>
         <Form initialValues={initialValues} onSubmit={onSubmit}>
-          {({ handleSubmit, submitting, pristine }) => {
+          {({ handleSubmit, submitting, pristine, dirtySinceLastSubmit, submitSucceeded }) => {
+            const isSubmitDisabled = submitting || pristine || (!dirtySinceLastSubmit && submitSucceeded);
             return (
               <form className={styles.form} onSubmit={handleSubmit}>
                 <FieldWithPreviousValue
@@ -75,7 +86,7 @@ const ProductForm: React.FC = () => {
                   disabled={isResponsibleDisabled}
                   previousValue={initialValues?.previousValues?.responsible}
                 />
-                <button className={styles.button} type="submit" disabled={submitting || pristine}>
+                <button className={styles.button} type="submit" disabled={isSubmitDisabled}>
                   Сохранить
                 </button>
               </form>
