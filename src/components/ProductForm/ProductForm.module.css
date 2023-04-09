@@ -28,17 +28,18 @@
 }
 
 /* QR Code */
-.hr {
-  border: none;
-  border-top: 1px solid #ccc;
-  margin: 20px 0;
-}
-
 .qr {
   display: flex;
   justify-content: center;
   align-items: center;
   margin-top: 8px;
+  flex-direction: column;
+}
+
+.downloadLink {
+  text-decoration: none;
+  color: #0077ff;
+  cursor: pointer;
 }
 
 /* Media queries */

@@ -3,6 +3,7 @@ import { Form, Field } from 'react-final-form';
 import { useParams } from 'react-router-dom';
 
 import { useFetchFormData, useSubmitData } from '../../hooks/useProductForm';
+import { dataURLToBlobURL } from '../../utils/dataToBlob';
 import FieldWithPreviousValue from '../inputs/FieldWithPreviousValue';
 import TextField from '../inputs/TextField';
 
@@ -10,8 +11,9 @@ import styles from './ProductForm.module.css';
 
 const ProductForm: React.FC = () => {
   const { qrCodeId = null } = useParams<{ qrCodeId: string }>();
-  const formData = useFetchFormData(qrCodeId);
-  const { handleSubmit, qrCode } = useSubmitData();
+  const [qrCode, setQrCode] = useState<string>('');
+  const { initialValues } = useFetchFormData(qrCodeId, setQrCode);
+  const { handleSubmit } = useSubmitData(setQrCode);
 
   const isQrLoaded = !!qrCodeId;
   const [isPavilionDisabled, setIsPavilionDisabled] = useState(isQrLoaded);
@@ -19,7 +21,7 @@ const ProductForm: React.FC = () => {
 
   return (
     <div className={styles.container}>
-      <Form initialValues={formData} onSubmit={handleSubmit}>
+      <Form initialValues={initialValues} onSubmit={handleSubmit}>
         {({ handleSubmit, submitting, pristine }) => (
           <form className={styles.form} onSubmit={handleSubmit}>
             <FieldWithPreviousValue
@@ -33,7 +35,7 @@ const ProductForm: React.FC = () => {
                 },
               }}
               disabled={isPavilionDisabled}
-              previousValue={formData?.previousValues?.pavilion}
+              previousValue={initialValues?.previousValues?.pavilion}
             />
 
             <Field component={TextField} label="Тип оборудования:" name="equipmentType" disabled={isQrLoaded} />
@@ -57,7 +59,7 @@ const ProductForm: React.FC = () => {
                 },
               }}
               disabled={isResponsibleDisabled}
-              previousValue={formData?.previousValues?.responsible}
+              previousValue={initialValues?.previousValues?.responsible}
             />
             <button className={styles.button} type="submit" disabled={submitting || pristine}>
               Сохранить
@@ -68,8 +70,10 @@ const ProductForm: React.FC = () => {
 
       {qrCode && (
         <div className={styles.qr}>
-          <hr className={styles.hr} />
           <img src={qrCode} alt={'QR code'} />
+          <a href={dataURLToBlobURL(qrCode)} download="qr.png" className={styles.downloadLink}>
+            Скачать QR-код
+          </a>
         </div>
       )}
     </div>
