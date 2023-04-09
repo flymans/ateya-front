@@ -6,6 +6,7 @@ import { ProductData } from '../../common/interfaces';
 import { useFetchFormData, useSubmitData } from '../../hooks/useProductForm';
 import { dataURLToBlobURL } from '../../utils/dataToBlob';
 import { required } from '../../utils/validations';
+import CommentField from '../inputs/CommentField';
 import FieldWithPreviousValue from '../inputs/FieldWithPreviousValue';
 import TextField from '../inputs/TextField';
 
@@ -55,13 +56,7 @@ const ProductForm: React.FC = () => {
                 validate={required}
               />
 
-              <Field
-                label="Комментарий:"
-                name="comment"
-                component={TextField}
-                inputType="textarea"
-                disabled={isQrLoaded}
-              />
+              <CommentField isQrLoaded={isQrLoaded} />
 
               <FieldWithPreviousValue
                 component={TextField}
