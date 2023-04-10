@@ -16,6 +16,9 @@
   padding: 10px;
   font-size: 1.2rem;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .button:hover {

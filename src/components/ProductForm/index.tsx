@@ -10,12 +10,14 @@ import Header from '../Header';
 import CommentField from '../inputs/CommentField';
 import FieldWithPreviousValue from '../inputs/FieldWithPreviousValue';
 import TextField from '../inputs/TextField';
+import Spinner from '../Spinner';
 
 import styles from './ProductForm.module.css';
 
 const ProductForm: React.FC = () => {
   const { qrCodeId = null } = useParams<{ qrCodeId: string }>();
   const [qrCode, setQrCode] = useState<string>('');
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const { initialValues, loadData } = useFetchFormData(qrCodeId, setQrCode);
   const { handleSubmit } = useSubmitData(setQrCode);
 
@@ -24,8 +26,10 @@ const ProductForm: React.FC = () => {
   const [isResponsibleDisabled, setIsResponsibleDisabled] = useState(isQrLoaded);
 
   const onSubmit = async (values: ProductData) => {
+    setIsLoading(true);
     await handleSubmit(values);
     if (isQrLoaded) await loadData();
+    setIsLoading(false);
   };
 
   useEffect(() => {
@@ -87,7 +91,7 @@ const ProductForm: React.FC = () => {
                   previousValue={initialValues?.previousValues?.responsible}
                 />
                 <button className={styles.button} type="submit" disabled={isSubmitDisabled}>
-                  Сохранить
+                  {isLoading ? <Spinner /> : 'Сохранить'}
                 </button>
               </form>
             );
